@@ -75,9 +75,9 @@ Una vez iniciado el sistema, puedes monitorear todo en:
 
 Panel de Control (App): http://localhost:5173
 
-Stream de Datos: http://localhost:8000/video_feed
+Stream de Datos: http://localhost:3000/video_feed
 
-Estado del Backend: http://localhost:8000/health
+Estado del Backend: http://localhost:3000/health
 
 ⚠️ Notas Técnicas Importantes
 CORS: El backend está configurado para aceptar peticiones de cualquier origen (allow_origins=["*"]), lo que facilita las pruebas en red local.
