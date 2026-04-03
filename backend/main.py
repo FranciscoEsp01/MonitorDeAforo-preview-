@@ -24,13 +24,9 @@ try:
 except Exception as e:
     logger.error(f"Error: {e}")
 
+current_person_count = 0
+
 def get_camera():
-    """
-    Busca la cámara activa. 
-    Índice 1 o 2 suele ser el iPhone vía Continuity Camera en Mac.
-    """
-    # Intentamos primero con el índice 1 (iPhone/Cámara externa)
-    # Si falla, retrocedemos al 0 (Integrada)
     for index in [1, 2, 0]:
         cap = cv2.VideoCapture(index)
         if cap.isOpened():
@@ -39,16 +35,15 @@ def get_camera():
     return None
 
 def generate_frames():
+    global current_person_count
     cap = get_camera()
     
     if cap is None:
         logger.error("No se detectó ninguna cámara disponible.")
         return
 
-    # Configuraciones para estabilidad
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-    # Evita lag de buffer en streams de iPhone
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1) 
 
     while True:
@@ -68,6 +63,8 @@ def generate_frames():
                 cv2.putText(frame, f"Persona", (x1, y1 - 10), 
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
+        current_person_count = person_count
+
         cv2.putText(frame, f"Conteo: {person_count}", (20, 50), 
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
@@ -82,6 +79,13 @@ def generate_frames():
 @app.get("/video_feed")
 async def video_feed():
     return StreamingResponse(generate_frames(), media_type="multipart/x-mixed-replace; boundary=frame")
+
+@app.get("/api/counter/current")
+async def get_current_count():
+    return {
+        "count": current_person_count,
+        "location": "Cámara 1"
+    }
 
 @app.get("/health")
 async def health():

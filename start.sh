@@ -24,8 +24,9 @@ echo "Instalando/Actualizando dependencias de Python..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-echo "Iniciando Backend en puerto 8000..."
-uvicorn main:app --reload --port 8000 &
+# El frontend espera que el backend esté en el puerto 3000
+echo "Iniciando Backend en puerto 3000..."
+uvicorn main:app --reload --port 3000 &
 BACKEND_PID=$!
 cd ..
 
@@ -36,14 +37,24 @@ if [ ! -d "node_modules" ]; then
     echo "Carpeta node_modules no encontrada. Instalando dependencias de NPM..."
     npm install
 else
-    # Opcional: sincronizar si hay cambios en package.json
+    # Sincronizar si hay cambios en package.json
     npm install
 fi
 
+# Agregamos --force para evitar problemas de caché de Vite que tuviste antes
 echo "Iniciando Frontend..."
-npm run dev &
+npm run dev -- --force &
 FRONTEND_PID=$!
 cd ..
 
-echo -e "\033[0;32m--- Todo listo. Presiona Ctrl+C para detener ambos servicios ---\033[0m"
+sleep 2 # Pausa de 2 segundos para dar tiempo a que las terminales impriman sus cosas
+
+echo -e "\n\033[0;32m========================================================\033[0m"
+echo -e "\033[0;32m🚀  TODO LISTO Y CONECTADO  🚀\033[0m"
+echo -e "\033[0;32m========================================================\033[0m"
+echo -e "🖥️  Frontend (Abre esto en tu navegador): \033[4;34mhttp://localhost:5173\033[0m"
+echo -e "⚙️  Backend API: \033[4;34mhttp://localhost:3000\033[0m"
+echo -e "========================================================"
+echo -e "\033[0;33mPresiona Ctrl+C en cualquier momento para apagar todo.\033[0m\n"
+
 wait
